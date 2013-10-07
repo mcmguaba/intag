@@ -9,7 +9,7 @@ import sys
 import json
 import os.path
 import datetime
-import time
+import time, re
 
 def main():
   #read in data
@@ -28,6 +28,7 @@ def main():
     if not os.path.exists(dir):
 	    os.makedirs(dir)
     structured_html = add_head(data)
+    structured_html = remove_styling_and_empty_elements(structured_html)
     html_file = open(file_path , 'w')
     html_file.write(structured_html.encode("utf-8"))
     html_file.close()
@@ -41,10 +42,16 @@ def clean_json(doc_text):
   return new_clean_string
 
 def add_head(html):
-  prepend = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><title>" + html["title"] + "</title></head><body>"
+  prepend = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><title>" + html["title"] + "</title><link href=\"../../../css/style.css\"></head><body>"
   h1 = "<h1>" + html["title"] + "</h1>"
   body = html["fulltext"] or html["introtext"]
   return prepend + h1 + body  + "</body></html>"
+
+def remove_styling_and_empty_elements(html):
+  html_no_inline_styling = re.sub(" style=\".*?\"", "", html)
+  html_correct_img_paths = html_no_inline_styling.replace("http://intagnewspaper.org/images/", "../../../img/")
+  return html_correct_img_paths
+
 
 if __name__ == "__main__":
 	main()
