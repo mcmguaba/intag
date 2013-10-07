@@ -10,7 +10,7 @@ import json
 import os.path
 import re
 import datetime
-import time
+import time, re
 
 def main():
     #read in data
@@ -29,6 +29,7 @@ def main():
         if not os.path.exists(dir):
             os.makedirs(dir)
         structured_html = add_head_and_body(data)
+        structured_html = remove_styling_and_empty_elements(structured_html)
         html_file = open(file_path , 'w')
         html_file.write(structured_html.encode("utf-8"))
         html_file.close()
@@ -45,7 +46,7 @@ def add_head_and_body(html):
     '''
     Add necessary html tags to generate a page.
     '''
-    prepend = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><title>" + html["title"] + "</title></head><body>"
+    prepend = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><title>" + html["title"] + "</title><link href=\"../../../css/style.css\"></head><body>"
     h1 = "<h1>" + html["title"] + "</h1>"
     author = get_author(html["introtext"])
     author_html = '<p class="author">' + author + '</p>'
@@ -70,6 +71,12 @@ def remove_html_tags(data):
     '''
     p = re.compile(r'<.*?>')
     return p.sub('', data).strip().rstrip('*')
+
+def remove_styling_and_empty_elements(html):
+    html_no_inline_styling = re.sub(" style=\".*?\"", "", html)
+    html_correct_img_paths = html_no_inline_styling.replace("http://intagnewspaper.org/images/", "../../../img/")
+    return html_correct_img_paths
+
 
 if __name__ == "__main__":
 	main()
