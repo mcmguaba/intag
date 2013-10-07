@@ -9,8 +9,7 @@ import sys
 import json
 import os.path
 import re
-import datetime
-import time, re
+import time
 
 def main():
     #read in data
