@@ -4,7 +4,6 @@
 Parse JSON data, put content into separate html files, whose names will take the form "alias".html
 The files will be organized according to month and year
 '''
-
 import sys
 import json
 import os.path
@@ -47,22 +46,22 @@ def add_head_and_body(html):
     '''
     prepend = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><title>" + html["title"] + "</title><link href=\"../../../css/style.css\"></head><body>"
     h1 = "<h1>" + html["title"] + "</h1>"
-    author = get_author(html["introtext"])
+    author, intro_text = get_author(html["introtext"])
     author_html = '<p class="author">' + author + '</p>'
-    body = author_html + html["fulltext"] or html["introtext"]
+    main_content = html["fulltext"] or intro_text
+    body = author_html + main_content
     return prepend + h1 + body  + "</body></html>"
-
 
 def get_author(html):
     '''
     Return the raw author name.
     '''
     if html:
-        regex = '\<h6\>(.*?)\</h6\>'
+        regex = '\<h6\>(.*?)\</h6\>(.*)'
         match = re.search(regex, html)
         if match:
-            return remove_html_tags(match.group(1))
-    return "Los Editores"
+            return remove_html_tags(match.group(1)), match.group(2)
+    return "Los Editores", html
 
 def remove_html_tags(data):
     '''
@@ -75,7 +74,6 @@ def remove_styling_and_empty_elements(html):
     html_no_inline_styling = re.sub(" style=\".*?\"", "", html)
     html_correct_img_paths = html_no_inline_styling.replace("http://intagnewspaper.org/images/", "../../../img/")
     return html_correct_img_paths
-
 
 if __name__ == "__main__":
 	main()
